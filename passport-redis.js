@@ -4,6 +4,7 @@ var passport = require('passport');
 var LocalStrategy = require('passport-local').Strategy;
 var session = require('express-session');
 var morgan = require('morgan');
+var RedisStore = require('connect-redis')(session);
 
 var CONFIG = require('./config');
 
@@ -16,7 +17,13 @@ app.set('view engine', 'jade');
 // Middleware
 // 1.
 app.use(bodyParser.urlencoded({ extended: false }));
-app.use(session(CONFIG.SESSION));
+app.use(session({
+  store: new RedisStore({
+    host: '127.0.0.1',
+    port: '6379'
+  }),
+  secret: CONFIG.SESSION.secret
+}));
 app.use(morgan('dev'));
 
 passport.use(new LocalStrategy(
